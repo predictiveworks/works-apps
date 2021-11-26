@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.kp.works</groupId>
+    <artifactId>works-apps</artifactId>
+    <packaging>pom</packaging>
+    <version>0.4.0</version>
+    <modules>
+        <module>works-botnet</module>
+    </modules>
+
+    <properties>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <encoding>UTF-8</encoding>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <cdap.version>6.2.0</cdap.version>
+
+    </properties>
+
+    <dependencies>
+
+        <!-- CDAP
+        -->
+        <dependency>
+            <groupId>io.cdap.cdap</groupId>
+            <artifactId>cdap-common</artifactId>
+            <version>${cdap.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cdap.cdap</groupId>
+            <artifactId>cdap-api</artifactId>
+            <version>${cdap.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- scala maven -->
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>3.4.4</version>
+                    <configuration>
+                        <args>
+                            <arg>-target:jvm-1.8</arg>
+                        </args>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>scala-compile-first</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>scala-test-compile</id>
+                            <!-- Needs to be before the test-compile phase -->
+                            <phase>process-test-resources</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!-- scala maven -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <name>Works Apps</name>
+    <description>Cy-IoT-specific off the shelf CDAP applications</description>
+
+    <organization>
+        <name>Dr. Krusche &amp; Partner PartG</name>
+        <url>https://www.dr-kruscheundpartner.de</url>
+    </organization>
+
+</project>
