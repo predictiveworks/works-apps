@@ -1,4 +1,4 @@
-package de.kp.works.apps.botnet;
+package de.kp.works.apps.anon;
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -21,18 +21,18 @@ package de.kp.works.apps.botnet;
 import io.cdap.cdap.api.service.AbstractService;
 
 @SuppressWarnings("rawtypes")
-public class BotnetService extends AbstractService {
+public class AnonService extends AbstractService {
     /*
-     * [BotnetService] is a wrapper for the Botnet handler
-     * that exposes the public REST API of the Botnet App.
+     * [AnonService] is a wrapper for the Anon handler
+     * that exposes the public REST API of the Anon App.
      */
-    public final String SERVICE_NAME = "BotnetService";
-    public final String SERVICE_DESC = "A Cyber Defense specific service that provides the public REST API" +
-        " for the Works. botnet detection app.";
+    public final String SERVICE_NAME = "AnonService";
+    public final String SERVICE_DESC = "A common Cy-IoT service that provides the public REST API" +
+        " for the Works. anomaly detection app.";
 
-    private final BotnetApp.BotnetConfig config;
+    private final AnonApp.AnonConfig config;
 
-    public BotnetService(BotnetApp.BotnetConfig config) {
+    public AnonService(AnonApp.AnonConfig config) {
         this.config = config;
     }
 
@@ -42,7 +42,7 @@ public class BotnetService extends AbstractService {
         this.setName(SERVICE_NAME);
         this.setDescription(SERVICE_DESC);
 
-        this.addHandler(new BotnetHandler(config));
+        this.addHandler(new AnonHandler(config));
 
     }
 }

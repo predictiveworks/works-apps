@@ -133,7 +133,7 @@
     </build>
 
     <name>Works Botnet</name>
-    <description>Off the shelf botnet detection as CDAP application</description>
+    <description>Off the shelf "Botnet Detection" application</description>
 
     <organization>
         <name>Dr. Krusche &amp; Partner PartG</name>

@@ -1,4 +1,4 @@
-package de.kp.works.apps.botnet;
+package de.kp.works.apps.anon;
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -21,8 +21,8 @@ package de.kp.works.apps.botnet;
 import io.cdap.cdap.api.service.http.AbstractHttpServiceHandler;
 
 @SuppressWarnings("rawtypes")
-public class BotnetHandler extends AbstractHttpServiceHandler {
+public class AnonHandler extends AbstractHttpServiceHandler {
 
-    public BotnetHandler(BotnetApp.BotnetConfig config) {}
+    public AnonHandler(AnonApp.AnonConfig config) {}
 
 }

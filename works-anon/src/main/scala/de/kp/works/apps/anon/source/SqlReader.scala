@@ -1,4 +1,4 @@
-package de.kp.works.apps.botnet;
+package de.kp.works.apps.anon.source
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,11 +18,10 @@ package de.kp.works.apps.botnet;
  *
  */
 
-import io.cdap.cdap.api.service.http.AbstractHttpServiceHandler;
+import org.apache.spark.sql.DataFrame
 
-@SuppressWarnings("rawtypes")
-public class BotnetHandler extends AbstractHttpServiceHandler {
+trait SqlReader {
 
-    public BotnetHandler(BotnetApp.BotnetConfig config) {}
+  def read(sql:String):DataFrame
 
 }
