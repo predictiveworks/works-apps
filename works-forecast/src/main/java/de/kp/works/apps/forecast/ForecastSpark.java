@@ -1,4 +1,4 @@
-package de.kp.works.apps.anon;
+package de.kp.works.apps.forecast;
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -25,17 +25,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * [AnonSpark] is a wrapper class for the [AnonReactor]
+ * [ForecastSpark] is a wrapper class for the [ForecastReactor]
  */
-public class AnonSpark extends AbstractSpark {
+public class ForecastSpark extends AbstractSpark {
 
-    public static final String NAME = "AnonReactor";
-    public static final String DESC = "This Spark program detects anomalies in various data sources" +
-            " by supporting multiple anomaly models.";
+    public static final String NAME = "ForecastReactor";
+    public static final String DESC = "This Spark program forecasts multi-variate timeseries" +
+            " for various data sources by supporting multiple forecasting models.";
 
-    AnonApp.AnonConfig config;
+    ForecastApp.ForecastConfig config;
 
-    public AnonSpark(AnonApp.AnonConfig config) {
+    public ForecastSpark(ForecastApp.ForecastConfig config) {
         this.config = config;
     }
 
@@ -66,14 +66,14 @@ public class AnonSpark extends AbstractSpark {
         /*
          * Transform the application configuration
          * into a property Map and make this Map
-         * available for the [AnonReactor]
+         * available for the [ForecastReactor]
          */
         this.setProperties(getProperties());
         /*
-         * Connect the Spark program with the [AnonReactor]
+         * Connect the Spark program with the [ForecastReactor]
          */
-        this.setMainClass(AnonReactor.class);
-        this.setMainClassName(AnonReactor.class.getName());
+        this.setMainClass(ForecastReactor.class);
+        this.setMainClassName(ForecastReactor.class.getName());
     }
     /**
      * Helper method to retrieve client resources
@@ -99,7 +99,7 @@ public class AnonSpark extends AbstractSpark {
     /**
      * This method transforms the application configuration
      * into a property map; this map is available in the
-     * AnonReactor via the [SparkSpecification]
+     * ForecastReactor via the [SparkSpecification]
      */
     private Map<String,String> getProperties() {
 

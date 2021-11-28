@@ -13,6 +13,7 @@
         <module>works-ttn</module>
         <module>works-osm</module>
         <module>works-anon</module>
+        <module>works-forecast</module>
     </modules>
 
     <properties>
