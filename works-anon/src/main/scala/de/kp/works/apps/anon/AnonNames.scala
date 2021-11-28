@@ -1,4 +1,4 @@
-package de.kp.works.apps.anon.source
+package de.kp.works.apps.anon
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,10 +18,12 @@ package de.kp.works.apps.anon.source
  *
  */
 
-import org.apache.spark.sql.DataFrame
+trait AnonNames {
 
-trait SqlReader {
-
-  def read():DataFrame
+  val DS_NAME = "ds.name"
+  val DS_PASS = "ds.password"
+  val DS_SQL  = "ds.sql"
+  val DS_URL  = "ds.url"
+  val DS_USER = "ds.user"
 
 }

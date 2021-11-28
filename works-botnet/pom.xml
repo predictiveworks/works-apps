@@ -20,8 +20,30 @@
         <encoding>UTF-8</encoding>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--
+        This version is compliant with CDAP Standalone
+        -->
+        <spark.version>2.1.3</spark.version>
 
     </properties>
+
+    <dependencies>
+
+        <!-- SPARK SQL
+        -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.11</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
 
     <build>
         <pluginManagement>

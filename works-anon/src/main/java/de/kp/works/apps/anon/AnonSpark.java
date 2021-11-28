@@ -21,6 +21,7 @@ package de.kp.works.apps.anon;
 import io.cdap.cdap.api.Resources;
 import io.cdap.cdap.api.spark.AbstractSpark;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -101,6 +102,19 @@ public class AnonSpark extends AbstractSpark {
      * AnonReactor via the [SparkSpecification]
      */
     private Map<String,String> getProperties() {
-        return null;
+
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("ds.name", config.dsName);
+        properties.put("ds.url", config.dsUrl);
+
+        if (config.dsUser != null)
+            properties.put("ds.user", config.dsUser);
+
+        if (config.dsPassword != null)
+            properties.put("ds.password", config.dsPassword);
+
+        return properties;
+
     }
 }

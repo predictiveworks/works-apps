@@ -18,10 +18,33 @@ package de.kp.works.apps.anon.source
  *
  */
 
+import de.kp.works.apps.anon.AnonNames
+import org.apache.spark.Session
 import org.apache.spark.sql.DataFrame
 
-trait SqlReader {
+object IgniteApi {
 
-  def read():DataFrame
+  private var instance:Option[IgniteReader] = None
+
+  def getInstance(settings:Map[String,String]):IgniteReader = {
+
+    if (instance.isEmpty) instance =
+      Some(new IgniteReader(settings))
+
+    instance.get
+
+  }
+}
+
+class IgniteReader(settings:Map[String,String]) extends SqlReader with AnonNames {
+
+  private val session = Session.getSession
+  /*
+   * The SQL statement to retrieve data records
+   * for anomaly detection is provided as runtime
+   * argument
+   */
+  private val readSql = settings.getOrElse(DS_SQL, "")
+  override def read(): DataFrame = ???
 
 }

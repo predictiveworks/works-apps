@@ -21,12 +21,63 @@ package de.kp.works.apps.anon;
 import io.cdap.cdap.api.Config;
 import io.cdap.cdap.api.app.AbstractApplication;
 
+import javax.annotation.Nullable;
+
 public class AnonApp extends AbstractApplication<AnonApp.AnonConfig> {
 
     public final String APP_NAME = "AnonApp";
     public final String APP_DESC = "A Cy-IoT common application for detecting anomalous data signals.";
 
     public static class AnonConfig extends Config {
+        /*
+         * The name of the datasource that is used to
+         * extract data from. The current implementation
+         * supports ['ignite', postgres'].
+         *
+         * Default value: 'postgres'
+         */
+        @Nullable
+        public final String dsName;
+        /*
+         * The (JDBC) URL to access the specified datasource
+         */
+        public final String dsUrl;
+        /*
+         * The optional registered user name of the datasource
+         */
+        @Nullable
+        public final String dsUser;
+        /*
+         * The optional password of the registered user name
+         * of the datasource
+         */
+        @Nullable
+        public final String dsPassword;
+
+        @SuppressWarnings("unused")
+        public AnonConfig(String dsUrl) {
+            this(null, dsUrl, null, null);
+        }
+
+        @SuppressWarnings("unused")
+        public AnonConfig(String dsUrl, String dsUser, String dsPassword) {
+            this(null, dsUrl, dsUser, dsPassword);
+        }
+
+        public AnonConfig(
+                @Nullable String dsName,
+                String dsUrl,
+                @Nullable String dsUser,
+                @Nullable String dsPassword) {
+
+            this.dsName = dsName == null ? "postgres" : dsName;
+            this.dsUrl = dsUrl;
+
+            this.dsUser = dsUser;
+            this.dsPassword = dsPassword;
+
+        }
+
     }
 
     @Override

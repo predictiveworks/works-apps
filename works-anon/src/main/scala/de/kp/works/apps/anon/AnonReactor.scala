@@ -18,24 +18,45 @@ package de.kp.works.apps.anon
  *
  */
 
+import de.kp.works.apps.anon.source.{IgniteApi, PostgresApi}
 import io.cdap.cdap.api.spark.{AbstractSpark, SparkExecutionContext, SparkMain, SparkSpecification}
 import org.apache.spark.Session
+import org.apache.spark.sql.DataFrame
 
 import scala.collection.JavaConverters._
 
-class AnonReactor extends AbstractSpark with SparkMain {
+class AnonReactor extends AbstractSpark with SparkMain with AnonNames {
 
   override def run(implicit sec: SparkExecutionContext): Unit = {
 
     val spec = getContext.getSpecification
     val args = getArgs(spec, sec)
-
-    val session = Session
-      .setProperties(args).getSession
-
     /*
-     * Application specific functionality goes here
+     * Initialize Apache Spark session; subsequent
+     * components of the program refer to this
+     * session
      */
+    Session.setProperties(args).setSession()
+    /*
+     * Stage #1: Retrieve data from configured data
+     * source; the current implementation supports
+     * Apache Ignite (ignite) and Postgres (postgres)
+     */
+    val dsName = args(DS_NAME)
+    val input:DataFrame = dsName match {
+      case "ignite" =>
+        val ignite = IgniteApi.getInstance(args)
+        ignite.read()
+
+      case "postgres" =>
+        val postgres = PostgresApi.getInstance(args)
+        postgres.read()
+
+      case _ =>
+        val now = new java.util.Date()
+        throw new IllegalArgumentException(
+          s"[ERROR] ${now.toString} - The configured datasource '$dsName' is not supported.")
+    }
 
   }
   /**
