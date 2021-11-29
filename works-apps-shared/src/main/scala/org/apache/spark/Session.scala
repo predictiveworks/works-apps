@@ -1,4 +1,5 @@
 package org.apache.spark
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *

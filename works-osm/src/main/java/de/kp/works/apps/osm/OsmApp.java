@@ -1,4 +1,4 @@
-package de.kp.works.apps.botnet;
+package de.kp.works.apps.osm;
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -21,20 +21,12 @@ package de.kp.works.apps.botnet;
 import io.cdap.cdap.api.Config;
 import io.cdap.cdap.api.app.AbstractApplication;
 
-public class BotnetApp extends AbstractApplication<BotnetApp.BotnetConfig> {
+public class OsmApp extends AbstractApplication<OsmApp.OsmConfig> {
 
-    public final String APP_NAME = "BotnetApp";
-    public final String APP_DESC = "A Cyber Defense specific application for detecting signals of botnet activities.";
+    public final String APP_NAME = "OsmApp";
+    public final String APP_DESC = "A common geo-centric application based on Open Street Map.";
 
-    /*
-     * The botnet configuration is built to receive a configuration
-     * when the application is created.
-     *
-     * The configuration is provided as part of the request body to
-     * create an application. It is available during configuration
-     * time through the getConfig().
-     */
-    public static class BotnetConfig extends Config {
+    public static class OsmConfig extends Config {
     }
 
     @Override
@@ -43,16 +35,16 @@ public class BotnetApp extends AbstractApplication<BotnetApp.BotnetConfig> {
         this.setName(APP_NAME);
         this.setDescription(APP_DESC);
 
-        /* Retrieve the botnet configuration */
-        BotnetConfig config = getConfig();
+        /* Retrieve the OSM configuration */
+        OsmConfig config = getConfig();
 
-        /* Append the REST API to the Botnet Detection App */
-        addService(new BotnetService(config));
+        /* Append the REST API to the OSM app */
+        addService(new OsmService(config));
 
         /* Append the Spark program that executes
-         * botnet detection
+         * geo-centric analytics
          */
-        addSpark(new BotnetSpark(config));
+        addSpark(new OsmSpark(config));
 
     }
 }

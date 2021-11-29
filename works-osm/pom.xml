@@ -23,6 +23,18 @@
 
     </properties>
 
+    <dependencies>
+
+        <!-- WORKS APPS SHARED
+        -->
+        <dependency>
+            <groupId>de.kp.works</groupId>
+            <artifactId>works-apps-shared</artifactId>
+            <version>0.4.0</version>
+        </dependency>
+
+    </dependencies>
+
     <build>
         <pluginManagement>
             <plugins>

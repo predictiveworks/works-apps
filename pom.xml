@@ -14,6 +14,8 @@
         <module>works-osm</module>
         <module>works-anon</module>
         <module>works-forecast</module>
+        <module>works-imagery</module>
+        <module>works-apps-shared</module>
     </modules>
 
     <properties>

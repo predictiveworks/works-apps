@@ -1,4 +1,4 @@
-package de.kp.works.apps.forecast
+package de.kp.works.apps.osm
 
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
@@ -19,14 +19,13 @@ package de.kp.works.apps.forecast
  *
  */
 
-import de.kp.works.apps.forecast.source.{IgniteApi, PostgresApi}
 import io.cdap.cdap.api.spark.{AbstractSpark, SparkExecutionContext, SparkMain, SparkSpecification}
 import org.apache.spark.Session
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.JavaConverters._
 
-class ForecastReactor extends AbstractSpark with SparkMain with ForecastNames {
+class OsmReactor extends AbstractSpark with SparkMain with OsmNames {
 
   override def run(implicit sec: SparkExecutionContext): Unit = {
 
@@ -38,26 +37,6 @@ class ForecastReactor extends AbstractSpark with SparkMain with ForecastNames {
      * session
      */
     Session.setProperties(args).setSession()
-    /*
-     * Stage #1: Retrieve data from configured data
-     * source; the current implementation supports
-     * Apache Ignite (ignite) and Postgres (postgres)
-     */
-    val dsName = args(DS_NAME)
-    val input:DataFrame = dsName match {
-      case "ignite" =>
-        val ignite = IgniteApi.getInstance(args)
-        ignite.read()
-
-      case "postgres" =>
-        val postgres = PostgresApi.getInstance(args)
-        postgres.read()
-
-      case _ =>
-        val now = new java.util.Date()
-        throw new IllegalArgumentException(
-          s"[ERROR] ${now.toString} - The configured datasource '$dsName' is not supported.")
-    }
 
   }
   /**
@@ -69,7 +48,7 @@ class ForecastReactor extends AbstractSpark with SparkMain with ForecastNames {
      * Retrieve the application configuration (provided at
      * creation time) from the [SparkSpecification].
      *
-     * The respective properties are assigned in [ForecastSpark]
+     * The respective properties are assigned in [OsmSpark]
      */
     val configArgs = spec.getProperties.asScala.toMap
     /*
