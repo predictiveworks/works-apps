@@ -20,7 +20,14 @@ package de.kp.works.apps.osm;
 
 import io.cdap.cdap.api.Config;
 import io.cdap.cdap.api.app.AbstractApplication;
-
+/*
+ * Situational awareness with respect to AgriFood, City
+ * Energy and Industry provides time and geo referenced
+ * values.
+ *
+ * [OSMApp] is an application to analyse the geo-specific
+ * aspect of situational awareness data & events.
+ */
 public class OsmApp extends AbstractApplication<OsmApp.OsmConfig> {
 
     public final String APP_NAME = "OsmApp";

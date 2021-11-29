@@ -54,27 +54,32 @@ public class AnonApp extends AbstractApplication<AnonApp.AnonConfig> {
         @Nullable
         public final String dsPassword;
 
+        public final String anonModel;
+
         @SuppressWarnings("unused")
-        public AnonConfig(String dsUrl) {
-            this(null, dsUrl, null, null);
+        public AnonConfig(String dsUrl, String anonModel) {
+            this(null, dsUrl, null, null, anonModel);
         }
 
         @SuppressWarnings("unused")
-        public AnonConfig(String dsUrl, String dsUser, String dsPassword) {
-            this(null, dsUrl, dsUser, dsPassword);
+        public AnonConfig(String dsUrl, String dsUser, String dsPassword, String anonModel) {
+            this(null, dsUrl, dsUser, dsPassword, anonModel);
         }
 
         public AnonConfig(
                 @Nullable String dsName,
                 String dsUrl,
                 @Nullable String dsUser,
-                @Nullable String dsPassword) {
+                @Nullable String dsPassword,
+                String anonModel) {
 
             this.dsName = dsName == null ? "postgres" : dsName;
             this.dsUrl = dsUrl;
 
             this.dsUser = dsUser;
             this.dsPassword = dsPassword;
+
+            this.anonModel = anonModel;
 
         }
 

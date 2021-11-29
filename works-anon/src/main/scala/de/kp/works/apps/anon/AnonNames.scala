@@ -19,11 +19,30 @@ package de.kp.works.apps.anon
  */
 
 trait AnonNames {
-
+  /*
+   * Datasource specific parameters
+   */
   val DS_NAME = "ds.name"
   val DS_PASS = "ds.password"
   val DS_SQL  = "ds.sql"
   val DS_URL  = "ds.url"
   val DS_USER = "ds.user"
+  /*
+   * Model specific parameters
+   */
+  val ANON_MODEL = "anon.model"
+  /*
+   * KMeans specific parameters: The respective
+   * values are provided as realtime arguments.
+   *
+   * This enable a flexible (re-use) of the
+   * application without the need to redeploy
+   * it.
+   */
+  val KMEANS_K          = "anon.kmeans.k"
+  val KMEANS_INIT_MODE  = "anon.kmeans.initMode"
+  val KMEANS_INIT_STEPS = "anon.kmeans.initSteps"
+  val KMEANS_MAXITER    = "anon.kmeans.maxIter"
+  val KMEANS_TOLERANCE  = "anon.kmeans.tolerance"
 
 }
