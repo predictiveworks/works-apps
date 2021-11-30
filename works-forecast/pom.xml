@@ -35,20 +35,6 @@
             <version>0.4.0</version>
         </dependency>
 
-        <!-- SPARK MLLIB
-        -->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-mllib_2.11</artifactId>
-            <version>${spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- TIMESCALE
 
         Version 42.2.18 is compliant with the JDBC driver specified

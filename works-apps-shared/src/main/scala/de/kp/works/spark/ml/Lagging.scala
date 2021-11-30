@@ -1,4 +1,5 @@
-package de.kp.works.apps.forecast.model.ts
+package de.kp.works.spark.ml
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -20,8 +21,8 @@ package de.kp.works.apps.forecast.model.ts
 
 import org.apache.spark.ml.Transformer
 import org.apache.spark.ml.linalg.{Vector, Vectors}
-import org.apache.spark.ml.param._
-import org.apache.spark.ml.util._
+import org.apache.spark.ml.param.{Param, ParamMap, ParamValidators}
+import org.apache.spark.ml.util.Identifiable
 import org.apache.spark.sql._
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
@@ -29,20 +30,20 @@ import org.apache.spark.sql.types._
 
 import scala.collection.mutable
 
-case class MultivariateLF(label: Seq[Seq[Double]], features: Seq[Seq[Double]])
+case class Multivariate(label: Seq[Seq[Double]], features: Seq[Seq[Double]])
 
-case class UnivariateLF(label: Vector, features: Vector)
+case class Univariate(label: Vector, features: Vector)
 
 trait TimeLaggingParams extends TimeParams {
 
   final val featuresCol = new Param[String](TimeLaggingParams.this, "featuresCol",
-    "Name of the column that contains the feature values", (value:String) => true)
+    "Name of the column that contains the feature values", (_:String) => true)
 
   final val labelCol = new Param[String](TimeLaggingParams.this, "labelCol",
-    "Name of the column that contains the label value(s)", (value:String) => true)
+    "Name of the column that contains the label value(s)", (_:String) => true)
 
   final val lag = new Param[Int](TimeLaggingParams.this, "lag",
-    "The number of past points of time to take into account for vectorization.", (value:Int) => true)
+    "The number of past points of time to take into account for vectorization.", (_:Int) => true)
 
   final val laggingType = new Param[String](this, "laggingType",
     "The selector type of the lagging algorithm. Supported values are: 'features', 'pastFeatures' and 'featuresAndLabels'.",
@@ -51,7 +52,7 @@ trait TimeLaggingParams extends TimeParams {
   /* __MOD__ */
 
   final val frame = new Param[Int](TimeLaggingParams.this, "frame",
-    "The number of future points of time to take into account for vectorization.", (value:Int) => true)
+    "The number of future points of time to take into account for vectorization.", (_:Int) => true)
 
   final val dimensionality = new Param[String](this, "dimensionality",
     "The specification of the dimensionality of the values. Supported values are: 'multivariate', and 'univariate'.",
@@ -296,7 +297,7 @@ class Lagging(override val uid: String) extends Transformer with TimeLaggingPara
          */
         val label = vector.takeRight(n).toArray
 
-        UnivariateLF(features = Vectors.dense(features), label = Vectors.dense(label))
+        Univariate(features = Vectors.dense(features), label = Vectors.dense(label))
 
       }
       else
@@ -323,7 +324,7 @@ class Lagging(override val uid: String) extends Transformer with TimeLaggingPara
         val label = vector.takeRight(n)
           .map(values => values)
 
-        MultivariateLF(features = features, label = label)
+        Multivariate(features = features, label = label)
 
       }
       else

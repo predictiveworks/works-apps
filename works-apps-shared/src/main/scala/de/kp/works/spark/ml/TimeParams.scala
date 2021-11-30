@@ -1,4 +1,5 @@
-package de.kp.works.apps.forecast.model.ts
+package de.kp.works.spark.ml
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,29 +19,19 @@ package de.kp.works.apps.forecast.model.ts
  *
  */
 
-import org.apache.spark.ml.param._
+import de.kp.works.spark.functions._
+import org.apache.spark.ml.param.{Param, Params}
 import org.apache.spark.sql._
-import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-
-object TimeUtils extends Serializable {
-
-  def date_to_timestamp: UserDefinedFunction = udf { date:java.sql.Date => new java.sql.Timestamp(date.getTime)}
-
-  def long_to_timestamp: UserDefinedFunction = udf { time:Long => new java.sql.Timestamp(time)}
-
-  def time_to_timestamp: UserDefinedFunction = udf { time:java.sql.Timestamp => time}
-
-}
 
 trait TimeParams extends Params {
 
   final val timeCol = new Param[String](TimeParams.this, "timeCol",
-    "Name of the timestamp field", (value:String) => true)
+    "Name of the timestamp field", (_:String) => true)
 
   final val valueCol = new Param[String](TimeParams.this, "valueCol",
-    "Name of the value field", (value:String) => true)
+    "Name of the value field", (_:String) => true)
 
   /** @group setParam */
   def setTimeCol(value:String): this.type = set(timeCol, value)
@@ -91,12 +82,6 @@ trait TimeParams extends Params {
 
   }
 
-  def date_to_timestamp: UserDefinedFunction = udf { date:java.sql.Date => new java.sql.Timestamp(date.getTime)}
-
-  def long_to_timestamp: UserDefinedFunction = udf { time:Long => new java.sql.Timestamp(time)}
-
-  def time_to_timestamp: UserDefinedFunction = udf { time:java.sql.Timestamp => time}
-
   def createTimeset(dataset:Dataset[_]):Dataset[Row] = {
     /*
      * Time transformer operate on a TimestampType column;
@@ -105,9 +90,9 @@ trait TimeParams extends Params {
     val timecol = col($(timeCol))
     val timeset = dataset.schema($(timeCol)).dataType match {
 
-      case DateType => dataset.withColumn($(timeCol),      TimeUtils.date_to_timestamp(timecol))
-      case LongType => dataset.withColumn($(timeCol),      TimeUtils.long_to_timestamp(timecol))
-      case TimestampType => dataset.withColumn($(timeCol), TimeUtils.time_to_timestamp(timecol))
+      case DateType => dataset.withColumn($(timeCol),      date_to_timestamp(timecol))
+      case LongType => dataset.withColumn($(timeCol),      long_to_timestamp(timecol))
+      case TimestampType => dataset.withColumn($(timeCol), time_to_timestamp(timecol))
 
       case _ => throw new IllegalArgumentException("[TimeParams] Unsupported time data type detected.")
 
