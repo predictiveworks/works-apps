@@ -41,6 +41,14 @@ package object functions {
       }
     })
 
+  /**
+   * Timeseries refer to fluctuating timestamps; this makes it
+   * difficult to build equidistant time grids for forecasting
+   * or other deep & machine learning asks.
+   *
+   * This method normalizes timestamp to the best matching
+   * 1, 5, 15, 30 minutes and 1, 6, 12 hours and 1 day.
+   */
   def normalize_timestamp_udf(interval:String): UserDefinedFunction =
     udf((timestamp:Long) => {
 
@@ -128,6 +136,11 @@ package object functions {
         throw new Exception("The provided time interval is not supported for bucketing")
 
     }
+    /*
+     * Return the normalized timestamp in
+     * milliseconds
+     */
+    c.getTimeInMillis
 
   })
 

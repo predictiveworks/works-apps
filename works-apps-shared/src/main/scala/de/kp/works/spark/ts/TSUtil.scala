@@ -26,14 +26,18 @@ import org.apache.spark.sql.types._
 object TSUtil {
 
   /**
-   * A day in milliseconds
-   *
    * IMPORTANT: The time `step` must be cast to [Long];
-   * otherwise the timegrid does not cover the right
+   * otherwise the time grid does not cover the right
    * period of time.
-   *
    */
-  val DAY: Long = (60 * 60 * 24 * 1000).toLong
+  val MIN_1: Long   = (60 * 1000).toLong
+  val MIN_5: Long   = (5 * 60 * 1000).toLong
+  val MIN_15: Long  = (15 * 60 * 1000).toLong
+  val MIN_30: Long  = (30 * 60 * 1000).toLong
+  val HOUR_1: Long  = (60 * 60 * 1000).toLong
+  val HOUR_6: Long  = (6 * 60 * 60 * 1000).toLong
+  val HOUR_12: Long = (12 * 60 * 60 * 1000).toLong
+  val DAY_1: Long   = (24 * 60 * 60 * 1000).toLong
 
   val INTERVALS = List(
     "1min",
@@ -47,20 +51,29 @@ object TSUtil {
 
   private val verbose = true
   /**
-   * This method prepares the dataset for subsequent
-   * learning tasks by building an equidistant time
-   * grid and by filling missing values
+   * This method prepares the dataset for subsequent learning tasks
+   * by building an equidistant time grid and by filling (interpolating)
+   * missing values.
+   *
+   * It is also the starting point for later aggregation tasks.
+   *
+   * __HINT__
+   *
+   * This method restricts (or reduces) the provided datasources to numeric
+   * columns (double, float, integer and long).
+   *
    */
-  def prepare(datasource:DataFrame, timeCol:String, interval:String):DataFrame = {
+  def prepare(input:DataFrame, timeCol:String,
+              timeInterval:String, timeStep:Long):DataFrame = {
 
-    val startts = System.currentTimeMillis   
+    val startts = System.currentTimeMillis
     /*
      * STEP #1: Restrict the dataset to those columns that
      * specify numeric values; this also covers the timestamp
      */
-    val schema = datasource.schema
+    val schema = input.schema
     val dropCols = schema.fieldNames.filter(fieldName => {
-      
+
       val fieldType = schema(fieldName).dataType
       fieldType match {
         case DoubleType  => false
@@ -69,27 +82,41 @@ object TSUtil {
         case LongType    => false
         case _ => true
       }
-      
+
     })
-    
-    val input = normalize(datasource.drop(dropCols: _*), timeCol, interval)
     /*
-     * STEP #2: Build equidistant time grid and normalize
-     * the respective time values
+     * STEP #2: Normalize the timestamp to the best matching
+     * 1, 5, 15, 30 minute and 1, 6, 12 hour and 1 day.
      */
-    val timegrid = {
-      val grid = buildGridDF(input, timeCol)
-      normalize(grid, timeCol, interval)
-    }
+    val normalized = normalize(
+      input.drop(dropCols: _*), timeCol, timeInterval)
 
     val ts1 = System.currentTimeMillis
-    if (verbose) println(s"Time grid built in ${ts1 - startts} ms")
+    if (verbose) println(s"Dataset normalized in ${ts1 - startts} ms")
     /*
-     * STEP #3: Interpolate the columns of the dataset
-     * one by one
+     * STEP #3: Build equidistant time grid and normalize
+     * the respective (filled) timestamps again.
+     */
+    val timegrid = normalize(
+      buildTimeGrid(normalized, timeCol, timeStep), timeCol, timeInterval)
+
+    val ts2 = System.currentTimeMillis
+    if (verbose) println(s"Time grid built in ${ts1 - ts1} ms")
+    /*
+     * STEP #4: Join the computed time grid with the provided
+     * and normalized datasource and sort by timestamp in ascending
+     * order.
+     *
+     * This operation creates a set of missing values for those
+     * timestamps (of the grid) that do not have assigned values.
+     */
+    var output = timegrid.join(normalized, Seq(timeCol), "left_outer").sort(col(timeCol).asc)
+    /*
+     * STEP #5: Determine the value columns and interpolate the
+     * missing values for each column.
      */
     val valueCols = schema.fieldNames.filter(fieldName => {
-      
+
       val fieldType = schema(fieldName).dataType
       fieldType match {
         case DoubleType  => true
@@ -98,86 +125,84 @@ object TSUtil {
         case LongType    => true
         case _ => false
       }
-      
+
     }).filter(fieldName => fieldName != timeCol)
-    
-    var output = timegrid.join(input, Seq(timeCol), "left_outer").sort(col(timeCol).asc)
     valueCols.foreach(valueCol => {
       /*
-       * [Interpolate] combines forward and backward fill 
-       * strategies to receive 'realistic' missing values 
+       * [Interpolate] combines forward and backward fill
+       * strategies to receive 'realistic' missing values
        */
       val transformer = new Interpolate().setTimeCol(timeCol).setValueCol(valueCol)
       output = transformer.transform(output)
     })
-    
-    val ts2 = System.currentTimeMillis
-    if (verbose) println(s"Dataset interpolated in ${ts2 - ts1} ms")
-    
-    output
-    
-  }  
-  /**
-   * Interpolate missing timestamps. The following data
-   * strategy is used:
-   * 
-   * Build an equidistant (e.g. daily) dataframe from the loaded
-   * target and perform a LEFT OUTER JOIN to join the timegrid
-   * and loaded dataframe. 
-   * 
-   * This approach introduces the missing timestamps and fills
-   *  in 'null' values.
-   * 
-   * This step prepares for linear interpolation to fill the
-   * missing values with interpolated ones. 
-   * 
-   * Performance: The duration of this method is about 1500 ms
-   */    
-  def interpolate(input:DataFrame, timeCol:String, valueCol:String, interval:String):DataFrame = {
-    /*
-     * We do normalize the timestamp because there 
-     * is a need to merge with other datasets, e.g.
-     * with [TimeGrid]
-     */
-    val start = System.currentTimeMillis
-
-    val normalized = normalize(input.select(timeCol, valueCol), timeCol, interval)
-    
-    val ts1 = System.currentTimeMillis
-    if (verbose) println(s"Dataset retrieved in ${ts1 - start} ms")
-    
-    val timegrid = normalize(buildGridDF(normalized, timeCol), timeCol, interval)
-
-    val ts2 = System.currentTimeMillis
-    if (verbose) println(s"Time grid built in ${ts2 - ts1} ms")
-    
-    val result = interpolateWithGrid(normalized, timegrid, timeCol, valueCol)
 
     val ts3 = System.currentTimeMillis
     if (verbose) println(s"Dataset interpolated in ${ts3 - ts2} ms")
 
-    result
-    
-  }
+    output
 
-  def interpolateWithGrid(input:DataFrame, timegrid:DataFrame, timeCol:String, valueCol:String):DataFrame = {
-    
-    val interpolated = timegrid.join(input, Seq(timeCol), "left_outer").sort(col(timeCol).asc)
-    val datasource = interpolated.select(timeCol, valueCol)
-    
+  }
+  /**
+   * This method prepares the dataset for subsequent learning tasks
+   * by building an equidistant time grid and by filling (interpolating)
+   * missing values.
+   *
+   * Performance: The duration of this method is about 1500 ms
+   */
+  def prepare(input:DataFrame, timeCol:String, valueCol:String,
+              timeInterval:String, timeStep:Long):DataFrame = {
+
+    val startts = System.currentTimeMillis
     /*
-     * [Interpolate] combines forward and backward fill 
-     * strategies to receive 'realistic' missing values 
+     * STEP #1: Normalize the timestamp to the best matching
+     * 1, 5, 15, 30 minute and 1, 6, 12 hour and 1 day.
+     */
+    val normalized = normalize(
+      input.select(timeCol, valueCol), timeCol, timeInterval)
+
+    val ts1 = System.currentTimeMillis
+    if (verbose) println(s"Dataset normalized in ${ts1 - startts} ms")
+    /*
+     * STEP #2: Build equidistant time grid and normalize
+     * the respective (filled) timestamps again.
+     */
+    val timegrid = normalize(
+      buildTimeGrid(normalized, timeCol, timeStep), timeCol, timeInterval)
+
+    val ts2 = System.currentTimeMillis
+    if (verbose) println(s"Time grid built in ${ts2 - ts1} ms")
+    /*
+     * STEP #3: Join the computed time grid with the provided
+     * and normalized datasource and sort by timestamp in ascending
+     * order.
+     *
+     * This operation creates a set of missing values for those
+     * timestamps (of the grid) that do not have assigned values.
+     */
+    var output = timegrid.join(normalized, Seq(timeCol), "left_outer").sort(col(timeCol).asc)
+    /*
+     * [Interpolate] combines forward and backward fill
+     * strategies to receive 'realistic' missing values
      */
     val transformer = new Interpolate().setTimeCol(timeCol).setValueCol(valueCol)
-    val transformed = transformer.transform(datasource)
-   
-    transformed
-    
-  }
+    output = transformer.transform(output)
 
+    val ts3 = System.currentTimeMillis
+    if (verbose) println(s"Dataset interpolated in ${ts3 - ts2} ms")
+
+    output
+
+  }
+  /**
+   * Timeseries refer to fluctuating timestamps; this makes it
+   * difficult to build equidistant time grids for forecasting
+   * or other deep & machine learning asks.
+   *
+   * This method normalizes timestamp to the best matching
+   * 1, 5, 15, 30 minutes and 1, 6, 12 hours and 1 day.
+   */
   def normalize(input:DataFrame, timeCol:String, interval:String):DataFrame = {
-    
+
     val normCol = "_normalized"
     val normalized = input.withColumn(normCol, normalize_timestamp_udf(interval)(col(timeCol)))
 
@@ -185,10 +210,13 @@ object TSUtil {
 
   }
   /**
+   * This method determines the minimum and maximum timestamp
+   * of the provided timeseries and builds an equidistant grid
+   * based on the specific step size
+   *
    * Performance: The duration of this method is about 60 ms
    */
-  def buildGridDF(input:DataFrame, timeCol:String, step:Long = DAY):DataFrame = {
-
+  def buildTimeGrid(input:DataFrame, timeCol:String, timeStep:Long):DataFrame = {
     /*
      * A helper method to return a list of equally spaced
      * points between mints and maxts with step size 'step'.
@@ -200,7 +228,7 @@ object TSUtil {
 
     }}
 
-    val grid_udf = timegrid_udf(step)
+    val grid_udf = timegrid_udf(timeStep)
     val timegrid = input
       /*
        * Determine the minimum & maximum value of the time series
@@ -215,51 +243,13 @@ object TSUtil {
 
   }
   /**
-   * This method split a time series in ascending order with
-   * respect to the provided split, e.g. 80:20.
-   *
-   * Performance: The duration of this method is about 6000 ms
-   */
-  def timeSplit(dataframe:DataFrame, timeCol:String, timeSplit:String): Array[Array[Row]] = {
-
-    val startts = System.currentTimeMillis
-
-    val fractions = timeSplit.split(":").map(token => {
-      token.trim.toDouble / 100
-    })
-
-    if (fractions.length != 2 || fractions.sum != 1D)
-      throw new IllegalArgumentException("[TimeSplit] The time split expects two integer numbers of sum 100.")
-
-    val timeset = dataframe.coalesce(1)
-
-    val maxts = timeset.agg({timeCol -> "max"}).collect.head(0).asInstanceOf[Long]
-    val mints = timeset.agg({timeCol -> "min"}).collect.head(0).asInstanceOf[Long]
-
-    /* Compute threshold */
-    val threshold = mints + Math.ceil(fractions(0) * (maxts - mints)).toLong
-
-    /* Split timeset */
-    val lowerSplit = timeset.filter(col(timeCol) <= threshold).collect
-    val upperSplit = timeset.filter(col(timeCol) > threshold).collect
-
-    val result = Array(lowerSplit, upperSplit)
-
-    val endts = System.currentTimeMillis
-    if (verbose) println(s"Dataset split in ${endts - startts} ms.")
-
-    result
-
-  }
-
-  /**
    * This method split a time series in ascending order with 
    * respect to the provided split, e.g. 80:20.
    * 
    * Performance: The duration of this method is about 500 ms
    * 
    */
-  def timeSplitDF(dataframe:DataFrame, timeCol:String, timeSplit:String): Array[DataFrame] = {
+  def buildTimeSplit(dataframe:DataFrame, timeCol:String, timeSplit:String): Array[DataFrame] = {
       
     val startts = System.currentTimeMillis
     
