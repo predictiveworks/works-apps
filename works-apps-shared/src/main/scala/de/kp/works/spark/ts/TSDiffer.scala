@@ -22,7 +22,6 @@ import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 
 import scala.collection.mutable
-import scala.collection.mutable.WrappedArray
 
 class TSDiffer {
   
@@ -31,31 +30,31 @@ class TSDiffer {
    * timeCol is required by the differentiation stage to 
    * apply lagging
    */
-  private var timeCol:String = null
+  private var timeCol:String = _
   /*
    * forwardInputCol specifies the column that contains 
    * the values for the forward transformation
    */
-  private var forwardInputCol:String = null
+  private var forwardInputCol:String = _
   /*
    * backwardInputCol specifies the column that contains 
    * the values for the forward transformation
    */
-  private var backwardInputCol:String = null
+  private var backwardInputCol:String = _
   /*
    * Intermediate columns for either 1st or 2nd order
    * differentiation
    */
-  private var lag1Col:String = null
-  private var diff1Col:String = null
+  private var lag1Col:String = _
+  private var diff1Col:String = _
 
-  private var lag2Col:String = null
-  private var diff2Col:String = null
+  private var lag2Col:String = _
+  private var diff2Col:String = _
   /*
    * outputCol specifies the column of inverse
    * differentiation stage   
    */ 
-  private var backwardOutputCol:String = null
+  private var backwardOutputCol:String = _
   
   private var diffOrder:Int = 1
   private var diffOffset:Int = 1

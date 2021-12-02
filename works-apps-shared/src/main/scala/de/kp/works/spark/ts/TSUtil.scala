@@ -18,7 +18,6 @@ package de.kp.works.spark.ts
  * 
  */
 import de.kp.works.spark.functions.normalize_timestamp_udf
-import de.kp.works.spark.ml.Interpolate
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._

@@ -1,4 +1,4 @@
-package de.kp.works.spark.ml
+package de.kp.works.spark.ts
 
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
@@ -34,7 +34,7 @@ case class Multivariate(label: Seq[Seq[Double]], features: Seq[Seq[Double]])
 
 case class Univariate(label: Vector, features: Vector)
 
-trait TimeLaggingParams extends TimeParams {
+trait TimeLaggingParams extends TSParams {
 
   final val featuresCol = new Param[String](TimeLaggingParams.this, "featuresCol",
     "Name of the column that contains the feature values", (_:String) => true)
@@ -93,7 +93,7 @@ trait TimeLaggingParams extends TimeParams {
  * The goal of this transformer is to prepare (cleaned) time series data for (demand) prediction:
  *
  * For each value x(t) of the time series, we build the vector x(t-N), ..., x(t-2), x(t-1), x(t).
- * Weuse the past values x(t-N), ..., x(t-2), x(t-1) as feature vector for the prediction model
+ * We use the past values x(t-N), ..., x(t-2), x(t-1) as feature vector for the prediction model
  * and the current value x(t) as the target column or label to train the model.
  *
  * REMINDER: Build the vector of past N values after partitioning the dataset into a training set

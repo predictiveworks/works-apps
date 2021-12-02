@@ -1,4 +1,4 @@
-package de.kp.works.spark.ml
+package de.kp.works.spark.ts
 
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
@@ -19,27 +19,25 @@ package de.kp.works.spark.ml
  *
  */
 
-import de.kp.works.spark.functions._
+import de.kp.works.spark.functions.{date_to_timestamp, long_to_timestamp, time_to_timestamp}
 import org.apache.spark.ml.param.{Param, Params}
-import org.apache.spark.sql._
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Dataset, Row}
 
-trait TimeParams extends Params {
+trait TSParams extends Params {
 
-  final val timeCol = new Param[String](TimeParams.this, "timeCol",
-    "Name of the timestamp field", (_:String) => true)
+  final val timeCol = new Param[String](TSParams.this, "timeCol",
+    "Name of the timestamp field", (_: String) => true)
 
-  final val valueCol = new Param[String](TimeParams.this, "valueCol",
-    "Name of the value field", (_:String) => true)
+  final val valueCol = new Param[String](TSParams.this, "valueCol",
+    "Name of the value field", (_: String) => true)
 
-  /** @group setParam */
-  def setTimeCol(value:String): this.type = set(timeCol, value)
+  def setTimeCol(value: String): this.type = set(timeCol, value)
 
-  /** @group setParam */
-  def setValueCol(value:String): this.type = set(valueCol, value)
+  def setValueCol(value: String): this.type = set(valueCol, value)
 
-  def validateSchema(schema:StructType):Unit = {
+  def validateSchema(schema: StructType): Unit = {
 
     /* TIME FIELD */
 
@@ -64,25 +62,25 @@ trait TimeParams extends Params {
     valueColType match {
 
       /* Basic numeric data types */
-      case DoubleType  =>
-      case FloatType   =>
+      case DoubleType =>
+      case FloatType =>
       case IntegerType =>
-      case LongType    =>
-      case ShortType   =>
+      case LongType =>
+      case ShortType =>
 
       /* Array of basic numeric data types */
-      case ArrayType(DoubleType, _)  =>
-      case ArrayType(FloatType, _)   =>
+      case ArrayType(DoubleType, _) =>
+      case ArrayType(FloatType, _) =>
       case ArrayType(IntegerType, _) =>
-      case ArrayType(LongType, _)    =>
-      case ArrayType(ShortType, _)   =>
+      case ArrayType(LongType, _) =>
+      case ArrayType(ShortType, _) =>
 
       case _ => throw new IllegalArgumentException(s"Data type of value column $valueColName must be a numeric type.")
     }
 
   }
 
-  def createTimeset(dataset:Dataset[_]):Dataset[Row] = {
+  def createTimeset(dataset: Dataset[_]): Dataset[Row] = {
     /*
      * Time transformer operate on a TimestampType column;
      * as a first step, we have to transform the dataset
@@ -90,8 +88,8 @@ trait TimeParams extends Params {
     val timecol = col($(timeCol))
     val timeset = dataset.schema($(timeCol)).dataType match {
 
-      case DateType => dataset.withColumn($(timeCol),      date_to_timestamp(timecol))
-      case LongType => dataset.withColumn($(timeCol),      long_to_timestamp(timecol))
+      case DateType => dataset.withColumn($(timeCol), date_to_timestamp(timecol))
+      case LongType => dataset.withColumn($(timeCol), long_to_timestamp(timecol))
       case TimestampType => dataset.withColumn($(timeCol), time_to_timestamp(timecol))
 
       case _ => throw new IllegalArgumentException("[TimeParams] Unsupported time data type detected.")
