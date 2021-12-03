@@ -53,22 +53,44 @@ public class ForecastApp extends AbstractApplication<ForecastApp.ForecastConfig>
          */
         @Nullable
         public final String dsPassword;
+        /*
+         * The optional algorithm name of the forecast model.
+         *
+         * Default is 'LSTM'.
+         */
+        @Nullable final String modelAlgo;
+        /*
+         * The optional model type of the forecast model.
+         * Supported values are 'DL', 'ML', 'TS'.
+         *
+         * Default is 'DL'.
+         */
+        @Nullable final String modelType;
 
         @SuppressWarnings("unused")
         public ForecastConfig(String dsUrl) {
-            this(null, dsUrl, null, null);
+            this(null, dsUrl, null, null, null, null);
         }
 
         @SuppressWarnings("unused")
-        public ForecastConfig(String dsUrl, String dsUser, String dsPassword) {
-            this(null, dsUrl, dsUser, dsPassword);
+        public ForecastConfig(
+                String dsUrl,
+                @Nullable String dsUser,
+                @Nullable String dsPassword,
+                @Nullable String modelAlgo,
+                @Nullable String modelType) {
+
+            this(null, dsUrl, dsUser, dsPassword, modelAlgo, modelType);
+
         }
 
         public ForecastConfig(
                 @Nullable String dsName,
                 String dsUrl,
                 @Nullable String dsUser,
-                @Nullable String dsPassword) {
+                @Nullable String dsPassword,
+                @Nullable String modelAlgo,
+                @Nullable String modelType) {
 
             this.dsName = dsName == null ? "postgres" : dsName;
             this.dsUrl = dsUrl;
@@ -76,6 +98,8 @@ public class ForecastApp extends AbstractApplication<ForecastApp.ForecastConfig>
             this.dsUser = dsUser;
             this.dsPassword = dsPassword;
 
+            this.modelAlgo = modelAlgo == null ? "LSTM" : modelAlgo;
+            this.modelType = modelType == null ? "DL" : modelType;
         }
 
     }

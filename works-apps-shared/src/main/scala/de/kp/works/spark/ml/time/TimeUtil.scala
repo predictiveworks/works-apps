@@ -1,4 +1,5 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -22,7 +23,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
-object TSUtil {
+object TimeUtil {
 
   /**
    * IMPORTANT: The time `step` must be cast to [Long];

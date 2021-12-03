@@ -1,5 +1,4 @@
-package de.kp.works.spark.ts
-
+package de.kp.works.spark.ml.time
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -34,7 +33,7 @@ case class Multivariate(label: Seq[Seq[Double]], features: Seq[Seq[Double]])
 
 case class Univariate(label: Vector, features: Vector)
 
-trait TimeLaggingParams extends TSParams {
+trait TimeLaggingParams extends TimeParams {
 
   final val featuresCol = new Param[String](TimeLaggingParams.this, "featuresCol",
     "Name of the column that contains the feature values", (_:String) => true)

@@ -114,6 +114,9 @@ public class ForecastSpark extends AbstractSpark {
         if (config.dsPassword != null)
             properties.put("ds.password", config.dsPassword);
 
+        properties.put("model.algo", config.modelAlgo);
+        properties.put("model.type", config.modelType);
+
         return properties;
 
     }

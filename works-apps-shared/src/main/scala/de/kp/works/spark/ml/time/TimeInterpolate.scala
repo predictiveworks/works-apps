@@ -1,4 +1,4 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
 
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
@@ -27,7 +27,7 @@ import org.apache.spark.sql.expressions.{Window, WindowSpec}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
-trait TimeInterpolateParams extends TSParams {
+trait TimeInterpolateParams extends TimeParams {
 
   final val groupCol = new Param[String](TimeInterpolateParams.this, "groupCol",
     "Name of the (optional) group field", (_:String) => true)

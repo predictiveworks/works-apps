@@ -1,5 +1,4 @@
-package org.apache.spark.ml.vec
-
+package de.kp.works.spark.ml.vectorize
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -18,22 +17,24 @@ package org.apache.spark.ml.vec
  * @author Stefan Krusche, Dr. Krusche & Partner PartG
  *
  */
-import org.apache.spark.SparkException
+
+import org.apache.spark.ml.Transformer
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.param._
-import org.apache.spark.ml.param.shared.HasOutputCol
 import org.apache.spark.ml.util._
-import org.apache.spark.ml.{Estimator, Model}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 
 import scala.collection.mutable
 
-trait FrequencyVecParams extends Params with HasOutputCol {
+trait FrequencyVecParams extends Params {
 
   final val featureCols = new Param[Array[String]](this, "featureCols",
   "the list of columns that contain categorical values.", (_:Array[String]) => true)
+
+  final val vectorCol = new Param[String](this, "vectorCol",
+    "the name of the output column.", (_:String) => true)
 
   final val opMode = new Param[String](this, "opMode",
     "The mode of operation of this vectorizer. Values are 'count', 'freq'." +
@@ -42,28 +43,24 @@ trait FrequencyVecParams extends Params with HasOutputCol {
 }
 
 /**
- * [FrequencyVec] transforms a certain table column (inputCol)
- * that contains categorical text values into numeric values.
+ * [FrequencyVec] transforms a list of feature columns (featureCols)
+ * that contain categorical text values into numeric values.
  *
  * Each categorical value is assigned its occurrence frequency,
  * i.e. the ratio between the total number of rows and each value
  * count.
- *
- * [FrequencyVec] is implemented as [Estimator] to facilitate model
- * persistence. The current version does not support IO operations.
  */
-class FrequencyVec(override val uid: String)
-  extends Estimator[FrequencyVecModel] with FrequencyVecParams with DefaultParamsWritable {
+class FrequencyVec(override val uid: String) extends Transformer with FrequencyVecParams {
 
   def this() = this(Identifiable.randomUID("FrequencyVec"))
 
   def setFeatureCols(value: Array[String]): this.type = set(featureCols, value)
 
-  def setOutputCol(value: String): this.type = set(outputCol, value)
+  def setVectorCol(value: String): this.type = set(vectorCol, value)
 
   def setOpMode(value: String): this.type = set(opMode, value)
 
-  override def fit(dataset: Dataset[_]): FrequencyVecModel = {
+  def transform(dataset:Dataset[_]):DataFrame = {
     /*
      * Validate whether the provided feature columns
      * are [String] columns
@@ -105,35 +102,6 @@ class FrequencyVec(override val uid: String)
 
     })
 
-    copyValues(new FrequencyVecModel(uid, data).setParent(this))
-  }
-
-  override def transformSchema(schema: StructType): StructType = {
-    schema
-  }
-
-  override def copy(extra: ParamMap): FrequencyVec = defaultCopy(extra)
-
-}
-
-object FrequencyVec extends DefaultParamsReadable[FrequencyVec] {
-  override def load(path: String): FrequencyVec = super.load(path)
-}
-
-class FrequencyVecModel(override val uid: String, val data: Seq[Map[String,Double]])
-  extends Model[FrequencyVecModel] with FrequencyVecParams with MLWritable {
-
-  import FrequencyVecModel._
-
-  def this(data: Seq[Map[String,Double]]) =
-    this(Identifiable.randomUID("FrequencyVecModel"), data)
-
-  def setFeatureCols(value: Array[String]): this.type = set(featureCols, value)
-
-  def setOutputCol(value: String): this.type = set(outputCol, value)
-
-  override def transform(dataset: Dataset[_]): DataFrame = {
-
     def vectorize(data:Seq[Map[String,Double]]) =
       udf{(row:Row) => {
         val values = data.indices.map(index =>
@@ -143,7 +111,7 @@ class FrequencyVecModel(override val uid: String, val data: Seq[Map[String,Doubl
       }}
 
     val colstruct = struct($(featureCols).map(col): _*)
-    dataset.withColumn($(outputCol), vectorize(data)(colstruct))
+    dataset.withColumn($(vectorCol), vectorize(data)(colstruct))
 
   }
 
@@ -151,35 +119,6 @@ class FrequencyVecModel(override val uid: String, val data: Seq[Map[String,Doubl
     schema
   }
 
-  override def copy(extra: ParamMap): FrequencyVecModel = {
-    val copied = new FrequencyVecModel(uid, data).setParent(parent)
-    copyValues(copied, extra)
-  }
-
-  override def write: MLWriter = new FrequencyVecModelWriter(this)
-
-}
-
-object FrequencyVecModel extends MLReadable[FrequencyVecModel] {
-
-  class FrequencyVecModelWriter(instance: FrequencyVecModel) extends MLWriter {
-
-    override protected def saveImpl(path: String): Unit = {
-      throw new SparkException("Method 'saveImpl' is not implemented")
-    }
-  }
-
-
-  private class FrequencyVecModelReader extends MLReader[FrequencyVecModel] {
-
-    override def load(path: String): FrequencyVecModel = {
-      throw new SparkException("Method 'load' is not implemented")
-    }
-
-  }
-
-  override def read: MLReader[FrequencyVecModel] = new FrequencyVecModelReader
-
-  override def load(path: String): FrequencyVecModel = super.load(path)
+  override def copy(extra: ParamMap): FrequencyVec = defaultCopy(extra)
 
 }

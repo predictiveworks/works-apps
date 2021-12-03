@@ -1,5 +1,4 @@
 package de.kp.works.apps.forecast
-
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -19,10 +18,11 @@ package de.kp.works.apps.forecast
  *
  */
 
-import de.kp.works.apps.forecast.source.{IgniteApi, PostgresApi}
+import de.kp.works.apps.forecast.model.dl.DLReactor
+import de.kp.works.apps.forecast.model.ml.MLReactor
+import de.kp.works.apps.forecast.model.ts.TSReactor
 import io.cdap.cdap.api.spark.{AbstractSpark, SparkExecutionContext, SparkMain, SparkSpecification}
 import org.apache.spark.Session
-import org.apache.spark.sql.DataFrame
 
 import scala.collection.JavaConverters._
 
@@ -39,25 +39,32 @@ class ForecastReactor extends AbstractSpark with SparkMain with ForecastNames {
      */
     Session.setProperties(args).setSession()
     /*
-     * Stage #1: Retrieve data from configured data
-     * source; the current implementation supports
-     * Apache Ignite (ignite) and Postgres (postgres)
+     * Determine the forecast reactor that matches
+     * the provided model type
      */
-    val dsName = args(DS_NAME)
-    val input:DataFrame = dsName match {
-      case "ignite" =>
-        val ignite = IgniteApi.getInstance(args)
-        ignite.read()
+    val modelType = args(MODEL_TYPE)
+    val reactor = modelType match {
+      case WORKS_DL =>
+        new DLReactor(args)
 
-      case "postgres" =>
-        val postgres = PostgresApi.getInstance(args)
-        postgres.read()
+      case WORKS_ML =>
+        new MLReactor(args)
+
+      case WORKS_TS =>
+        new TSReactor(args)
 
       case _ =>
         val now = new java.util.Date()
         throw new IllegalArgumentException(
-          s"[ERROR] ${now.toString} - The configured datasource '$dsName' is not supported.")
+          s"[ERROR] ${now.toString} - The configured model type '$modelType' is not supported.")
     }
+    /*
+     * Leverage the forecast reactor to predict
+     * future feature values of the provided time
+     * series and persist the result in the specified
+     * datasource (and destination).
+     */
+    reactor.forecast()
 
   }
   /**

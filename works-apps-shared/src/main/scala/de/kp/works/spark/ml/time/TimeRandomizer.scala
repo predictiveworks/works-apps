@@ -1,4 +1,5 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -20,24 +21,24 @@ package de.kp.works.spark.ts
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-class TSRandomizer {
+class TimeRandomizer {
   
   private var inputCol:String  = null
   private var outputCol:String = null
   
   private var withDiff:Boolean = false
   
-  def setInputCol(name:String):TSRandomizer = {
+  def setInputCol(name:String):TimeRandomizer = {
     inputCol = name
     this
   }
   
-  def setOutputCol(name:String):TSRandomizer = {
+  def setOutputCol(name:String):TimeRandomizer = {
     outputCol = name
     this
   }
   
-  def setWithDiff(value:Boolean):TSRandomizer = {
+  def setWithDiff(value:Boolean):TimeRandomizer = {
     withDiff = value
     this
   }

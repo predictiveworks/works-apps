@@ -1,4 +1,5 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -23,7 +24,7 @@ import org.apache.spark.sql.functions._
 
 import scala.collection.mutable
 
-class TSDiffer {
+class TimeDiffer {
   
   private var dimensionality:String = "univariate"
   /*
@@ -59,37 +60,37 @@ class TSDiffer {
   private var diffOrder:Int = 1
   private var diffOffset:Int = 1
   
-  def setForwardInputCol(name:String):TSDiffer = {
+  def setForwardInputCol(name:String):TimeDiffer = {
     forwardInputCol = name
     this
   }
   
-  def setBackwardInputCol(name:String):TSDiffer = {
+  def setBackwardInputCol(name:String):TimeDiffer = {
     backwardInputCol = name
     this
   }
   
-  def setTimeCol(name:String):TSDiffer = {
+  def setTimeCol(name:String):TimeDiffer = {
     timeCol = name
     this
   }
   
-  def setDiffOrder(value:Int):TSDiffer = {
+  def setDiffOrder(value:Int):TimeDiffer = {
     diffOrder = value
     this
   }
   
-  def setDiffOffset(value:Int):TSDiffer = {
+  def setDiffOffset(value:Int):TimeDiffer = {
     diffOffset = value
     this
   }
   
-  def setDimensionality(value:String):TSDiffer = {
+  def setDimensionality(value:String):TimeDiffer = {
     dimensionality = value
     this
   }
 
-  def setBackwardOutputCol(colname:String):TSDiffer = {
+  def setBackwardOutputCol(colname:String):TimeDiffer = {
     backwardOutputCol = colname
     this
   }

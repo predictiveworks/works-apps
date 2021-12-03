@@ -1,4 +1,5 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -24,13 +25,13 @@ import org.apache.spark.sql.functions._
 
 import scala.collection.mutable
 /**
- * Note: The [[TSScaler]] from Apache Spark ML does
+ * Note: The [[TimeScaler]] from Apache Spark ML does
  * not support inverse scaling operations. 
  * 
  * Therefore, this version is introduced to map input
  * values to the interval from [0, 1] and back.
  */
-class TSScaler {
+class TimeScaler {
   
   private var dimensionality:String = "univariate"
   /*
@@ -50,7 +51,7 @@ class TSScaler {
   private var backwardInputCol:String = null
   private var rescaledCol:String = null
   
-  def setForwardInputCol(name:String):TSScaler = {
+  def setForwardInputCol(name:String):TimeScaler = {
     forwardInputCol = name
     scaledCol = s"${forwardInputCol}_scaled"
     this
@@ -58,13 +59,13 @@ class TSScaler {
   
   def getForwardOutputCol: String = scaledCol
   
-  def setBackwardInputCol(name:String):TSScaler = {
+  def setBackwardInputCol(name:String):TimeScaler = {
     backwardInputCol = name
     rescaledCol = s"${backwardInputCol}_rescaled"
     this
   }
   
-  def setDimensionality(value:String):TSScaler = {
+  def setDimensionality(value:String):TimeScaler = {
     dimensionality = value
     this
   }

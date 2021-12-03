@@ -1,4 +1,5 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
+
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -20,12 +21,12 @@ package de.kp.works.spark.ts
 import org.apache.spark.sql._
 
 /**
- * [[TSDiffScaler]] is a 2-step transformer for non-stationary
+ * [[TimeDiffScaler]] is a 2-step transformer for non-stationary
  * timeseries. First, 1st or 2nd order differentiation is applied
  * to make the time series stationary. Second, a Min-Max scaler
  * is applied to map values onto [0, 1]
  */
-class TSDiffScaler {
+class TimeDiffScaler {
   
   private var dimensionality:String = "univariate"
   /*
@@ -49,40 +50,40 @@ class TSDiffScaler {
   private var diffOrder:Int = 0
   private var diffOffset:Int = 0
   
-  private val differ = new TSDiffer()
-  private val scaler = new TSScaler()
+  private val differ = new TimeDiffer()
+  private val scaler = new TimeScaler()
   
-  def setForwardInputCol(name:String):TSDiffScaler = {
+  def setForwardInputCol(name:String):TimeDiffScaler = {
     forwardInputCol = name
     this
   }
   
-  def setBackwardInputCol(name:String):TSDiffScaler = {
+  def setBackwardInputCol(name:String):TimeDiffScaler = {
     backwardInputCol = name
     this
   }
   
-  def setBackwardOutputCol(name:String):TSDiffScaler = {
+  def setBackwardOutputCol(name:String):TimeDiffScaler = {
     backwardOutputCol = name
     this
   }
   
-  def setTimeCol(name:String):TSDiffScaler = {
+  def setTimeCol(name:String):TimeDiffScaler = {
     timeCol = name
     this
   }
   
-  def setDiffOrder(value:Int):TSDiffScaler = {
+  def setDiffOrder(value:Int):TimeDiffScaler = {
     diffOrder = value
     this
   }
   
-  def setDiffOffset(value:Int):TSDiffScaler = {
+  def setDiffOffset(value:Int):TimeDiffScaler = {
     diffOffset = value
     this
   }
   
-  def setDimensionality(value:String):TSDiffScaler = {
+  def setDimensionality(value:String):TimeDiffScaler = {
     dimensionality = value
     this
   }

@@ -1,5 +1,4 @@
-package de.kp.works.apps.forecast
-
+package de.kp.works.apps.forecast.model.ml
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
  *
@@ -19,19 +18,12 @@ package de.kp.works.apps.forecast
  *
  */
 
-trait ForecastNames {
+import de.kp.works.apps.forecast.model.BaseReactor
 
-  val DS_NAME = "ds.name"
-  val DS_PASS = "ds.password"
-  val DS_SQL  = "ds.sql"
-  val DS_URL  = "ds.url"
-  val DS_USER = "ds.user"
+class MLReactor(settings:Map[String,String]) extends BaseReactor(settings) {
 
-  val MODEL_ALGO = "model.algo"
-  val MODEL_TYPE = "model.type"
+  override def forecast():Unit = {
 
-  val WORKS_DL = "DL"
-  val WORKS_ML = "ML"
-  val WORKS_TS = "TS"
+  }
 
 }

@@ -1,4 +1,4 @@
-package de.kp.works.spark.ts
+package de.kp.works.spark.ml.time
 
 /*
  * Copyright (c) 2019 - 2021 Dr. Krusche & Partner PartG. All rights reserved.
@@ -25,12 +25,12 @@ import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Dataset, Row}
 
-trait TSParams extends Params {
+trait TimeParams extends Params {
 
-  final val timeCol = new Param[String](TSParams.this, "timeCol",
+  final val timeCol = new Param[String](TimeParams.this, "timeCol",
     "Name of the timestamp field", (_: String) => true)
 
-  final val valueCol = new Param[String](TSParams.this, "valueCol",
+  final val valueCol = new Param[String](TimeParams.this, "valueCol",
     "Name of the value field", (_: String) => true)
 
   def setTimeCol(value: String): this.type = set(timeCol, value)
